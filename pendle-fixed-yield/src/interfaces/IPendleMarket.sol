@@ -6,17 +6,12 @@ interface IPendleMarket {
     /// @return The expiry timestamp
     function expiry() external view returns (uint256);
 
-    /// @notice Get the PT token address
-    /// @return The PT token address
-    function PT() external view returns (address);
-
-    /// @notice Get the YT token address
-    /// @return The YT token address
-    function YT() external view returns (address);
-
-    /// @notice Get the SY token address
-    /// @return The SY token address
-    function SY() external view returns (address);
+    /// @notice Read token addresses from the market
+    /// @dev Returns (SY, PT, YT) in that order
+    /// @return sy The SY token address
+    /// @return pt The PT token address
+    /// @return yt The YT token address
+    function readTokens() external view returns (address sy, address pt, address yt);
 
     /// @notice Check if market is expired
     /// @return True if expired
