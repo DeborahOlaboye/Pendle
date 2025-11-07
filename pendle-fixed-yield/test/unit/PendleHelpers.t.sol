@@ -7,9 +7,9 @@ import "../../src/interfaces/IPendleMarket.sol";
 
 contract MockPendleMarket is IPendleMarket {
     uint256 public override expiry;
-    address public override PT;
-    address public override YT;
-    address public override SY;
+    address public PT;
+    address public YT;
+    address public SY;
     bool public override isExpired;
     uint256 private totalPt;
     uint256 private totalSy;
@@ -29,6 +29,10 @@ contract MockPendleMarket is IPendleMarket {
         totalPt = _totalPt;
         totalSy = _totalSy;
         isExpired = false;
+    }
+
+    function readTokens() external view returns (address sy, address pt, address yt) {
+        return (SY, PT, YT);
     }
 
     function getReserves() external view returns (uint256, uint256) {
