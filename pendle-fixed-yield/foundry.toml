@@ -10,7 +10,8 @@ via_ir = true
 remappings = [
     "@openzeppelin/=lib/openzeppelin-contracts/",
     "@solmate/=lib/solmate/src/",
-    "@pendle/=lib/pendle-core-v2-public/contracts/"
+    "@pendle/=lib/pendle-core-v2-public/contracts/",
+    "pendle-core-v2-public/=lib/pendle-core-v2-public/"
 ]
 
 [rpc_endpoints]

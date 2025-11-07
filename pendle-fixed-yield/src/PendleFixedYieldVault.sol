@@ -11,9 +11,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/IStETH.sol";
 import "./interfaces/IPendleRouter.sol";
-import "./interfaces/IPendleMarket.sol";
+import "@pendle/interfaces/IPMarket.sol";
 import "./YieldLockManager.sol";
 import "./FixedYieldDistributor.sol";
+import {createEmptyLimitOrderData} from "@pendle/interfaces/IPAllActionTypeV3.sol";
 
 /// @title PendleFixedYieldVault
 /// @notice ERC4626 vault that converts ETH deposits into fixed yield via Pendle PT/YT splitting
@@ -117,7 +118,7 @@ contract PendleFixedYieldVault is ERC4626, Ownable, ReentrancyGuard, Pausable {
         uint256 minPyOut = (stETHAmount * (10000 - slippageBps)) / 10000;
 
         // Mint PT + YT from stETH
-        uint256 netPyOut = pendleRouter.mintPyFromToken(
+        (uint256 netPyOut,) = pendleRouter.mintPyFromToken(
             address(this),
             pendleYT,
             minPyOut,
@@ -125,9 +126,9 @@ contract PendleFixedYieldVault is ERC4626, Ownable, ReentrancyGuard, Pausable {
         );
 
         // Track PT position
-        (, address ptToken,) = IPendleMarket(pendleMarket).readTokens();
-        uint256 maturity = IPendleMarket(pendleMarket).expiry();
-        yieldLockManager.addPosition(ptToken, netPyOut, maturity);
+        (, IPPrincipalToken ptToken,) = IPMarket(pendleMarket).readTokens();
+        uint256 maturity = IPMarket(pendleMarket).expiry();
+        yieldLockManager.addPosition(address(ptToken), netPyOut, maturity);
 
         // Sell YT for fixed yield
         _sellYT(netPyOut);
@@ -154,18 +155,19 @@ contract PendleFixedYieldVault is ERC4626, Ownable, ReentrancyGuard, Pausable {
         });
 
         // Swap YT for stETH
-        (uint256 netTokenOut,) = pendleRouter.swapExactYtForToken(
+        (uint256 netTokenOut,,) = pendleRouter.swapExactYtForToken(
             address(this),
             pendleMarket,
             ytAmount,
-            output
+            output,
+            createEmptyLimitOrderData()
         );
 
         // Transfer fixed yield to distributor
         IERC20(address(stETH)).safeTransfer(address(yieldDistributor), netTokenOut);
         yieldDistributor.receiveYield(netTokenOut);
 
-        uint256 maturity = IPendleMarket(pendleMarket).expiry();
+        uint256 maturity = IPMarket(pendleMarket).expiry();
         emit YieldLocked(ytAmount, netTokenOut, maturity);
     }
 
@@ -204,7 +206,7 @@ contract PendleFixedYieldVault is ERC4626, Ownable, ReentrancyGuard, Pausable {
         });
 
         // Redeem PT to stETH
-        uint256 stETHReceived = pendleRouter.redeemPyToToken(
+        (uint256 stETHReceived,) = pendleRouter.redeemPyToToken(
             address(this),
             pendleYT,
             amount,

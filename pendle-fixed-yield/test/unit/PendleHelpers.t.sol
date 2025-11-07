@@ -3,14 +3,15 @@ pragma solidity ^0.8.23;
 
 import "forge-std/Test.sol";
 import "../../src/libraries/PendleHelpers.sol";
-import "../../src/interfaces/IPendleMarket.sol";
+import "@pendle/interfaces/IPMarket.sol";
 
-contract MockPendleMarket is IPendleMarket {
-    uint256 public override expiry;
+// Simple mock that implements minimal IPMarket interface for testing
+contract MockPendleMarket {
+    uint256 public expiry;
     address public PT;
     address public YT;
     address public SY;
-    bool public override isExpired;
+    bool public isExpired;
     uint256 private totalPt;
     uint256 private totalSy;
 
@@ -31,8 +32,8 @@ contract MockPendleMarket is IPendleMarket {
         isExpired = false;
     }
 
-    function readTokens() external view returns (address sy, address pt, address yt) {
-        return (SY, PT, YT);
+    function readTokens() external view returns (IStandardizedYield, IPPrincipalToken, IPYieldToken) {
+        return (IStandardizedYield(SY), IPPrincipalToken(PT), IPYieldToken(YT));
     }
 
     function getReserves() external view returns (uint256, uint256) {
