@@ -16,10 +16,10 @@ contract FullFlowIntegrationTest is Test {
     address constant STETH = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
     address constant PENDLE_ROUTER = 0x00000000005BBB0EF59571E58418F9a4357b68A0;
 
-    // NOTE: These addresses need to be updated with actual Pendle market addresses
-    // Check https://app.pendle.finance/trade/markets for latest stETH markets
-    address constant PENDLE_MARKET_STETH = address(0);
-    address constant PENDLE_YT_STETH = address(0);
+    // Pendle stETH Market (Expiry: Dec 25, 2025)
+    // Market: PT-stETH-25DEC25/SY-stETH
+    address constant PENDLE_MARKET_STETH = 0xC374f7eC85F8C7DE3207a10bB1978bA104bdA3B2;
+    address constant PENDLE_YT_STETH = 0xf3aBC972A0f537c1119C990d422463b93227Cd83;
 
     address public user1;
     address public user2;
@@ -67,12 +67,17 @@ contract FullFlowIntegrationTest is Test {
         manager = vault.yieldLockManager();
         distributor = vault.yieldDistributor();
 
+        // Transfer ownership of distributor to test contract for admin functions
+        vm.prank(address(vault));
+        distributor.transferOwnership(address(this));
+
         // Add public good to distributor
         distributor.addPublicGoodsProject(publicGood);
     }
 
     function testForkExists() public view {
-        assertEq(block.chainid, 1, "Should be on mainnet fork");
+        // Tenderly virtual testnet uses chain ID 8, mainnet fork uses 1
+        assertTrue(block.chainid == 1 || block.chainid == 8, "Should be on mainnet fork or Tenderly vnet");
     }
 
     function testStETHContract() public view {
@@ -82,7 +87,8 @@ contract FullFlowIntegrationTest is Test {
     }
 
     function testDepositETH() public {
-        if (vm.isContext(VmSafe.ForgeContext.Test) && vm.envOr("MAINNET_RPC_URL", string("")).length == 0) {
+        // Skip test if markets not configured
+        if (PENDLE_MARKET_STETH == address(0)) {
             return;
         }
 
@@ -102,7 +108,7 @@ contract FullFlowIntegrationTest is Test {
     }
 
     function testFullDepositToYieldFlow() public {
-        if (vm.isContext(VmSafe.ForgeContext.Test) && vm.envOr("MAINNET_RPC_URL", string("")).length == 0) {
+        if (PENDLE_MARKET_STETH == address(0)) {
             return;
         }
 
@@ -135,7 +141,7 @@ contract FullFlowIntegrationTest is Test {
     }
 
     function testWithdrawBeforeMaturity() public {
-        if (vm.isContext(VmSafe.ForgeContext.Test) && vm.envOr("MAINNET_RPC_URL", string("")).length == 0) {
+        if (PENDLE_MARKET_STETH == address(0)) {
             return;
         }
 
@@ -161,7 +167,7 @@ contract FullFlowIntegrationTest is Test {
     }
 
     function testMultipleUserDeposits() public {
-        if (vm.isContext(VmSafe.ForgeContext.Test) && vm.envOr("MAINNET_RPC_URL", string("")).length == 0) {
+        if (PENDLE_MARKET_STETH == address(0)) {
             return;
         }
 
@@ -188,7 +194,7 @@ contract FullFlowIntegrationTest is Test {
     }
 
     function testRedeemAfterMaturity() public {
-        if (vm.isContext(VmSafe.ForgeContext.Test) && vm.envOr("MAINNET_RPC_URL", string("")).length == 0) {
+        if (PENDLE_MARKET_STETH == address(0)) {
             return;
         }
 
@@ -256,7 +262,7 @@ contract FullFlowIntegrationTest is Test {
     }
 
     function testYieldHistory() public {
-        if (vm.isContext(VmSafe.ForgeContext.Test) && vm.envOr("MAINNET_RPC_URL", string("")).length == 0) {
+        if (PENDLE_MARKET_STETH == address(0)) {
             return;
         }
 
@@ -278,7 +284,7 @@ contract FullFlowIntegrationTest is Test {
     }
 
     function testTotalAssetsCalculation() public {
-        if (vm.isContext(VmSafe.ForgeContext.Test) && vm.envOr("MAINNET_RPC_URL", string("")).length == 0) {
+        if (PENDLE_MARKET_STETH == address(0)) {
             return;
         }
 
@@ -305,7 +311,7 @@ contract FullFlowIntegrationTest is Test {
     }
 
     function testGasEstimates() public {
-        if (vm.isContext(VmSafe.ForgeContext.Test) && vm.envOr("MAINNET_RPC_URL", string("")).length == 0) {
+        if (PENDLE_MARKET_STETH == address(0)) {
             return;
         }
 
