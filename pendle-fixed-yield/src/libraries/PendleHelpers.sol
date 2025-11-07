@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "../interfaces/IPendleMarket.sol";
+import "@pendle/interfaces/IPMarket.sol";
 
 /// @title PendleHelpers
 /// @notice Helper library for Pendle-related calculations
@@ -19,7 +19,7 @@ library PendleHelpers {
         returns (uint256 expectedValue)
     {
         // Get market reserves
-        (uint256 totalPt, uint256 totalSy) = IPendleMarket(market).getReserves();
+        (uint256 totalPt, uint256 totalSy) = IPMarket(market).getReserves();
 
         if (totalPt == 0 || totalSy == 0) return 0;
 
@@ -45,10 +45,10 @@ library PendleHelpers {
             address market = availableMarkets[i];
 
             // Skip expired markets
-            if (IPendleMarket(market).isExpired()) continue;
+            if (IPMarket(market).isExpired()) continue;
 
-            uint256 marketMaturity = IPendleMarket(market).expiry();
-            (uint256 totalPt, uint256 totalSy) = IPendleMarket(market)
+            uint256 marketMaturity = IPMarket(market).expiry();
+            (uint256 totalPt, uint256 totalSy) = IPMarket(market)
                 .getReserves();
 
             // Score based on liquidity and time to maturity
@@ -171,7 +171,7 @@ library PendleHelpers {
         view
         returns (bool)
     {
-        (uint256 totalPt, uint256 totalSy) = IPendleMarket(market).getReserves();
+        (uint256 totalPt, uint256 totalSy) = IPMarket(market).getReserves();
         uint256 totalLiquidity = totalPt + totalSy;
 
         // Require liquidity to be at least 10x the required amount for safety
