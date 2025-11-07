@@ -125,7 +125,7 @@ contract PendleFixedYieldVault is ERC4626, Ownable, ReentrancyGuard, Pausable {
         );
 
         // Track PT position
-        address ptToken = IPendleMarket(pendleMarket).PT();
+        (, address ptToken,) = IPendleMarket(pendleMarket).readTokens();
         uint256 maturity = IPendleMarket(pendleMarket).expiry();
         yieldLockManager.addPosition(ptToken, netPyOut, maturity);
 
