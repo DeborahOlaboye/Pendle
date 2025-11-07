@@ -18,14 +18,18 @@ library PendleHelpers {
         view
         returns (uint256 expectedValue)
     {
-        // Get market reserves
-        (uint256 totalPt, uint256 totalSy) = IPMarket(market).getReserves();
+        // Get market reserves from storage
+        (int128 totalPt, int128 totalSy,,,,) = IPMarket(market)._storage();
 
-        if (totalPt == 0 || totalSy == 0) return 0;
+        // Convert to uint256 (storage values are positive in normal operation)
+        uint256 totalPtUint = uint256(int256(totalPt));
+        uint256 totalSyUint = uint256(int256(totalSy));
+
+        if (totalPtUint == 0 || totalSyUint == 0) return 0;
 
         // Simple estimate: YT value based on PT/SY ratio
         // In production, should use Pendle's pricing oracle
-        expectedValue = (ytAmount * totalSy) / (totalPt + totalSy);
+        expectedValue = (ytAmount * totalSyUint) / (totalPtUint + totalSyUint);
     }
 
     /// @notice Select optimal maturity date from available markets
@@ -48,11 +52,14 @@ library PendleHelpers {
             if (IPMarket(market).isExpired()) continue;
 
             uint256 marketMaturity = IPMarket(market).expiry();
-            (uint256 totalPt, uint256 totalSy) = IPMarket(market)
-                .getReserves();
+
+            // Get market reserves
+            (int128 totalPt, int128 totalSy,,,,) = IPMarket(market)._storage();
+            uint256 totalPtUint = uint256(int256(totalPt));
+            uint256 totalSyUint = uint256(int256(totalSy));
 
             // Score based on liquidity and time to maturity
-            uint256 liquidity = totalPt + totalSy;
+            uint256 liquidity = totalPtUint + totalSyUint;
             uint256 timeToMaturity = marketMaturity > block.timestamp
                 ? marketMaturity - block.timestamp
                 : 0;
@@ -171,8 +178,11 @@ library PendleHelpers {
         view
         returns (bool)
     {
-        (uint256 totalPt, uint256 totalSy) = IPMarket(market).getReserves();
-        uint256 totalLiquidity = totalPt + totalSy;
+        // Get market reserves
+        (int128 totalPt, int128 totalSy,,,,) = IPMarket(market)._storage();
+        uint256 totalPtUint = uint256(int256(totalPt));
+        uint256 totalSyUint = uint256(int256(totalSy));
+        uint256 totalLiquidity = totalPtUint + totalSyUint;
 
         // Require liquidity to be at least 10x the required amount for safety
         return totalLiquidity >= (requiredAmount * 10);
