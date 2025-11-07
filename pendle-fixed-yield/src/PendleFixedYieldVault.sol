@@ -2,6 +2,7 @@
 pragma solidity ^0.8.23;
 
 import "@solmate/tokens/ERC4626.sol";
+import "@solmate/tokens/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
@@ -57,7 +58,7 @@ contract PendleFixedYieldVault is ERC4626, Ownable, ReentrancyGuard, Pausable {
         address _pendleRouter,
         address _pendleMarket,
         address _pendleYT
-    ) ERC4626(IERC20(_stETH), "Pendle Fixed Yield Vault", "pfyVault") Ownable(msg.sender) {
+    ) ERC4626(ERC20(_stETH), "Pendle Fixed Yield Vault", "pfyVault") Ownable(msg.sender) {
         require(_stETH != address(0), "Invalid stETH address");
         require(_pendleRouter != address(0), "Invalid router address");
         require(_pendleMarket != address(0), "Invalid market address");
