@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAppKit } from '@reown/appkit/react';
 import { parseEther } from 'viem';
-import { useContractWrite, useWaitForTransaction } from 'wagmi';
 import { mainnet } from '@reown/appkit/networks';
 
 const TOKENS = [
@@ -30,26 +29,8 @@ export default function DepositForm() {
   const { isConnected, address } = useAppKit();
   const selectedToken = watch('token');
 
-  // Mock contract interaction - replace with actual contract ABI and address
-  const { write: deposit, data: depositData } = useContractWrite({
-    address: '0x...', // Replace with actual contract address
-    abi: [
-      'function deposit(uint256 amount) external payable',
-    ],
-    functionName: 'deposit',
-  });
-
-  const { isLoading: isDepositProcessing } = useWaitForTransaction({
-    hash: depositData?.hash,
-    onSuccess: () => {
-      setIsDepositing(false);
-      // Show success notification
-    },
-    onError: () => {
-      setIsDepositing(false);
-      // Show error notification
-    },
-  });
+  const { executeTransaction } = useVaultTransactions();
+  const [isDepositProcessing, setIsDepositProcessing] = useState(false);
 
   const onSubmit = async (data: FormData) => {
     if (!isConnected) return;
@@ -58,19 +39,23 @@ export default function DepositForm() {
       setIsDepositing(true);
       const amount = parseEther(data.amount);
       
-      // For ETH, we can call deposit directly
-      if (selectedToken === 'eth') {
-        deposit({
-          value: amount,
-        });
-      } else {
-        // For stETH, we need to approve first
-        setIsApproving(true);
-        // Add approval logic here
-        // After approval, call deposit
+      // In a real implementation, you would use the Reown AppKit to interact with contracts
+      // This is a placeholder for the actual contract interaction
+      const result = await executeTransaction(async () => {
+        // Replace with actual contract interaction
+        console.log(`Depositing ${data.amount} ${selectedToken.toUpperCase()}`);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return { success: true };
+      });
+      
+      if (result.success) {
+        // Handle successful deposit
+        console.log('Deposit successful');
       }
     } catch (error) {
       console.error('Deposit error:', error);
+    } finally {
       setIsDepositing(false);
       setIsApproving(false);
     }
