@@ -1,8 +1,8 @@
 'use client';
 
-import { useAccount, useDisconnect, useChainId, useSwitchChain } from '@reown/next';
-import { Button, Dropdown, message } from 'antd';
-import { DisconnectOutlined, CopyOutlined } from '@ant-design/icons';
+export default function WalletConnector() {
+  return <appkit-button />;
+}
 
 export default function WalletConnector() {
   const { address, isConnected } = useAccount();
