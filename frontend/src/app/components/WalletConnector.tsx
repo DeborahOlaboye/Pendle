@@ -3,26 +3,6 @@
 export default function WalletConnector() {
   return <appkit-button />;
 }
-
-export default function WalletConnector() {
-  const { address, isConnected } = useAccount();
-  const { disconnect } = useDisconnect();
-  const chainId = useChainId();
-  const { switchChain } = useSwitchChain();
-
-  const handleCopyAddress = () => {
-    if (address) {
-      navigator.clipboard.writeText(address);
-      message.success('Address copied to clipboard!');
-    }
-  };
-
-  const handleNetworkChange = async (newChainId: number) => {
-    try {
-      await switchChain({ chainId: newChainId });
-      message.success('Network switched successfully');
-    } catch (error) {
-      message.error('Failed to switch network');
     }
   };
 
