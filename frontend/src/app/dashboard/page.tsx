@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import DepositForm from '@/app/components/DepositForm';
 import WithdrawForm from '@/app/components/WithdrawForm';
 import { useVaultData } from '@/app/hooks/useVaultTransactions';
@@ -48,7 +48,7 @@ export default function DashboardPage() {
         <Tabs 
           defaultValue="deposit" 
           className="w-full"
-          onValueChange={(value) => setActiveTab(value)}
+          onValueChange={(value: string) => setActiveTab(value)}
         >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="deposit">Deposit</TabsTrigger>
